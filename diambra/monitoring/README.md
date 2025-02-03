@@ -1,5 +1,7 @@
 # **Docker Container Log Monitor**
-A **Docker container monitoring script** that tracks **stage progression** and **game completion logs** for reinforcement learning environments. This script is particularly useful for monitoring DIAMBRA-based training environments.
+A **Docker container monitoring script** that tracks **stage progression** and **game completion logs** for reinforcement learning environments. This script is particularly useful for monitoring **DIAMBRA-based training environments**.
+
+📌 **Part of the [`mscrnt_utils`](https://github.com/mscrnt/mscrnt_utils) repository.**  
 
 ---
 
@@ -20,9 +22,18 @@ Ensure you have the following installed:
 - **Required Python packages** (`pip install -r requirements.txt`)
 
 ### **1. Clone the Repository**
+To get the entire **mscrnt_utils** repository:
 ```bash
-git clone https://github.com/yourusername/docker-monitor.git
-cd docker-monitor
+git clone https://github.com/mscrnt/mscrnt_utils.git
+cd mscrnt_utils/diambra/monitoring
+```
+
+#### **OR**: Clone only the monitoring utility using `sparse-checkout`:
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/mscrnt/mscrnt_utils.git
+cd mscrnt_utils
+git sparse-checkout set diambra/monitoring
+cd diambra/monitoring
 ```
 
 ### **2. Install Dependencies**
@@ -94,11 +105,4 @@ This will:
 [INFO] *** Currently monitoring statuses for 2 containers ***
 [INFO] *** 3 Game(s) Completed! ***
 ```
-
----
-
-## **Contributing**
-Feel free to **fork** this repository, **submit issues**, or **make pull requests** to improve the script.
-
----
 
