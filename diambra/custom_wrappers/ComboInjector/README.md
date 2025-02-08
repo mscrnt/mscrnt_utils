@@ -32,8 +32,8 @@ The module consists of the following files:
 ### Clone the Entire Repository
 
 ```bash
-git clone https://github.com/your-repo/diambra-combo-injector.git
-cd diambra-combo-injector
+git clone https://github.com/mscrnt/mscrnt_utils.git
+cd mscrnt_utils/diambra/custom_wrappers/ComboInjector
 pip install -r requirements.txt
 ```
 
@@ -42,10 +42,10 @@ pip install -r requirements.txt
 If you only need the `ComboInjector` module and not the entire repository:
 
 ```bash
-git clone --depth 1 --filter=blob:none --sparse https://github.com/your-repo/diambra-combo-injector.git
-cd diambra-combo-injector
-git sparse-checkout set ComboInjector
-cd ComboInjector
+git clone --depth 1 --filter=blob:none --sparse https://github.com/mscrnt/mscrnt_utils.git
+cd mscrnt_utils
+git sparse-checkout set diambra/custom_wrappers/ComboInjector
+cd diambra/custom_wrappers/ComboInjector
 ```
 
 ---
