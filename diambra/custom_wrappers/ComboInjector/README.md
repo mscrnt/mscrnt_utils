@@ -15,23 +15,37 @@ The module consists of the following files:
 - `ComboInjector/combo_injector.py` - Implements the **ComboInjector** class, which injects combo actions into the environment.
 - `ComboInjector/combo_wrapper.py` - Implements **ComboWrapper**, a Gymnasium wrapper that integrates ComboInjector into an environment.
 
+---
+
 ## Features
 
 ✔ **Automated combo execution** - Allows agents to execute **predefined character-specific combos**.  
 ✔ **Configurable action modes** - Supports **multi_discrete** action spaces.  
 ✔ **Decay Mechanism** - Injection probability can **decay over time**, simulating skill progression.  
-✔ **Custom environment support** - Works with **DIAMBRA Arena** environment.  
+✔ **Custom environment support** - Works with **DIAMBRA Arena** environments.  
 ✔ **Seamless RL training integration** - Easily integrates with **Stable-Baselines3 PPO** training.  
 
 ---
 
 ## Installation
 
-Clone this repository and install the dependencies:
+### Clone the Entire Repository
 
 ```bash
 git clone https://github.com/your-repo/diambra-combo-injector.git
 cd diambra-combo-injector
+pip install -r requirements.txt
+```
+
+### OR: Clone Only the `ComboInjector` Folder (Sparse Checkout)
+
+If you only need the `ComboInjector` module and not the entire repository:
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/your-repo/diambra-combo-injector.git
+cd diambra-combo-injector
+git sparse-checkout set ComboInjector
+cd ComboInjector
 ```
 
 ---
@@ -126,7 +140,6 @@ This project was **forked from** [Nebraskinator/ComboInjector](https://github.co
   - Website: [https://diambra.ai/](https://diambra.ai/)  
 - **Stable-Baselines3** - For robust RL implementations.
 - **Gymnasium** - For providing standardized RL environments.
-
 ---
 
 ## Contact
