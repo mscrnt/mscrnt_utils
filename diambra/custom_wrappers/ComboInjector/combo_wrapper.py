@@ -48,8 +48,13 @@ class ComboWrapper(gym.Wrapper):
         obs, reward, terminated, truncated, info : tuple
             The observation, reward, termination flag, truncation flag, and info dictionary.
         """
+
+        # Take a step with a NO-OP action (only if allowed in your environment)
+        original_obs, *_= self.env.step(self.env.action_space.sample())  
+
+
         # Try to get an injected action.
-        injected = self.injector.sample()
+        injected = self.injector.sample(original_obs)
         if injected is not None:
             modified_action = injected['multi_discrete']
             if isinstance(modified_action, dict):

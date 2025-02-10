@@ -13,7 +13,7 @@ from .action_utils import decode_action_string, string_to_idx
 
 class ComboInjector:
     def __init__(self, environment_name: str = 'sfiii3n', mode: str = 'multi_discrete',
-                 frame_skip: int = 4, total_decay_steps: int = 16000000):
+                 frame_skip: int = 4, total_decay_steps: int = 0):
         """
         Initialize the ComboInjector.
 
@@ -124,7 +124,7 @@ class ComboInjector:
         """Return True if the specified agent has queued moves."""
         return len(self.agent_state[player]['move_sequence']) > 0
 
-    def sample_character_special(self, player: str) -> list:
+    def sample_character_special(self, player: str, obs: dict) -> list:
         """
         Generate a special or super-art combo for the given agent.
         
@@ -141,6 +141,12 @@ class ComboInjector:
         #print(f"[ComboInjector] Sampling special combo for {player}.")
         character = self.agent_state[player]['character']
         super_art = self.agent_state[player]['super_art']
+        player_side = obs.get("own_side", 0)
+
+        # ✅ Ensure player_side is a single integer
+        if isinstance(player_side, np.ndarray):
+            player_side = int(player_side[0])  # Get first element if it's an array
+
 
         if character not in CHARACTER_MOVES[self.environment_name]:
             raise NotImplementedError(f"Character '{character}' not supported for environment '{self.environment_name}'.")
@@ -155,15 +161,15 @@ class ComboInjector:
                     action_str = params[combo_key]
                 else:
                     action_str = params['combo_str']
-                decoded = decode_action_string(action_str)
+                decoded = decode_action_string(action_str, side=player_side)  
                 #print(f"[ComboInjector] Selected special combo: {decoded}")
                 return decoded
         fallback = [np.random.choice(list(BASE_ACTION_LOOKUP.keys()))]
         #print(f"[ComboInjector] No combo selected; falling back to: {fallback}")
         return fallback
 
-    def sample(self, prob_jump=0.05, prob_basic=0.40, prob_combo=0.30,
-               prob_cancel=0.2, prob_movement=0.25) -> dict:
+    def sample(self, obs, prob_jump=0.05, prob_basic=0.40, prob_combo=0.30,
+            prob_cancel=0.2, prob_movement=0.25) -> dict:
         """
         Generate the next action(s) for all agents.
         Returns a dictionary with:
@@ -192,7 +198,6 @@ class ComboInjector:
         for i, agent_id in enumerate(self.agent_state):
             if not self.in_sequence(agent_id):
                 roll = np.random.rand()
-                side = -1  # Default side; extend as needed.
                 #print(f"[ComboInjector] Agent '{agent_id}' move_sequence empty. Roll = {roll}")
                 if roll < cdfs[0]:
                     seq_str = [np.random.choice(['ul+', 'u+', 'ur+'])]
@@ -201,7 +206,7 @@ class ComboInjector:
                     seq_str = [np.random.choice(list(BASE_ACTION_LOOKUP.keys()))]
                     #print(f"[ComboInjector] Basic action chosen: {seq_str}")
                 elif roll < cdfs[2]:
-                    seq_str = self.sample_character_special(agent_id)
+                    seq_str = self.sample_character_special(agent_id, obs)
                     if np.random.rand() < prob_cancel:
                         cutoff = np.random.randint(1, len(seq_str) + 1)
                         seq_str = seq_str[:cutoff]
@@ -223,5 +228,5 @@ class ComboInjector:
         return actions
 
     def string_to_idx(self, string_list: list) -> list:
-        """Convert each token in the list (e.g. 'd+lp') into its integer index."""
+        """Convert each token in the list into an integer action index."""
         return string_to_idx(string_list)

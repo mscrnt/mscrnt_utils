@@ -10,6 +10,12 @@ Author: ruhe (modified with debug prints)
 import numpy as np
 from . import BASE_ACTION_LOOKUP
 
+# Mirroring table for reversing left/right movement inputs when needed.
+MIRROR_MAP = {
+    'r': 'l', 'l': 'r', 'dr': 'dl', 'dl': 'dr',
+    'ur': 'ul', 'ul': 'ur', 'sr': 'sl', 'sl': 'sr'
+}
+
 def string_to_idx(string_list: list) -> list:
     """
     Convert each 'dir+attack' token into an integer action index.
@@ -30,7 +36,7 @@ def string_to_idx(string_list: list) -> list:
     #print("[action_utils.string_to_idx] Converted indices:", indices)
     return indices
 
-def combine_actions(move_string: str, attack_string: str, side: int = -1) -> list:
+def combine_actions(move_string: str, attack_string: str, side: int = 0) -> list:
     """
     Helper function to stitch together a movement pattern with an attack.
     
@@ -59,6 +65,10 @@ def combine_actions(move_string: str, attack_string: str, side: int = -1) -> lis
     else:
         m_seq = [move_string]
     #print(f"[action_utils.combine_actions] Movement sequence: {m_seq}")
+
+    if side == 1:
+        m_seq = [MIRROR_MAP.get(m, m) for m in m_seq]
+
     
     if attack_string == 'p':
         attack = np.random.choice(['lp', 'mp', 'hp'])
