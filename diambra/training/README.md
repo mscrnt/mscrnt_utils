@@ -1,7 +1,3 @@
-Hey Kenneth, here's a README for the `diambra/training` folder based on your files and the provided template:
-
----
-
 # **DIAMBRA Arena Training**
 
 A **training module** that uses **PPO (Proximal Policy Optimization)** from **stable-baselines3** to train agents for **DIAMBRA Arena**. This folder contains all the necessary scripts and configuration files to set up the training environment, customize game-specific filter keys, and configure PPO training parameters.
@@ -29,6 +25,7 @@ Ensure you have the following installed:
 - **PyTorch**
 - **Stable-Baselines3**
 - **DIAMBRA Arena** (and associated dependencies)
+- **OpenCV** (for evaluation, install with `pip install opencv-python`)
 - Other required Python packages (see `requirements.txt` if available)
 
 ### **1. Clone the Repository**
@@ -51,26 +48,20 @@ cd diambra/training
 
 ### **2. Install Dependencies**
 
-If a `requirements.txt` file is available:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Otherwise, ensure you install the following packages:
-
-- torch
-- stable-baselines3
-- diambra.arena
-- argparse (Python standard library)
-
 ---
 
 ## **Usage**
 
+### **Training**
+
 The training script (`train.py`) leverages PPO to train agents in the DIAMBRA Arena environment. It automatically loads configuration settings from `config.py` and utilizes the custom filter keys from `filter_keys.py`.
 
-### **Run Training**
+#### **Run Training**
 
 ```bash
 python train.py
@@ -84,13 +75,43 @@ python train.py
 
 ---
 
+## **Evaluation**
+
+The evaluation script (`eval.py`) is designed to load a trained PPO model and run an evaluation session in the DIAMBRA Arena environment, rendering the gameplay in an OpenCV window.
+
+### **Configuration**
+
+Before running the evaluation script, make sure to update the following in `eval.py`:
+- **Game Settings**: Set `settings.game_id` to your desired game (e.g., `"sfiii3n"`).
+- **Model Path**: Specify the path to your trained model checkpoint by setting `model_path`.
+
+### **Running Evaluation**
+
+Run the evaluation script with:
+
+```bash
+python eval.py
+```
+
+The evaluation script will:
+- Create the DIAMBRA Arena environment with `render_mode="rgb_array"`.
+- Load the PPO agent from the specified `model_path`.
+- Render the game frames using OpenCV (the window title will be "Game").
+- Continuously predict actions using the trained agent.
+- Reset the environment when an episode is terminated, and exit when the environment signals completion.
+
+**To exit evaluation:**  
+Press `CTRL+C` in the terminal or close the OpenCV window. The script includes cleanup commands to close the environment and destroy the OpenCV window.
+
+---
+
 ## **Configuration Overview**
 
-### **Environment & Game Settings (`config.py`)**
+### **Environment & Game Settings (`config.py` and within eval.py)**
 
 - **env_settings**: Sets the number of parallel environments, autosave frequency, and total training steps.
-- **settings**: Defines game-specific parameters such as game id, difficulty, character selections, and frame shape.
-- **wrappers_settings**: Configures additional environment wrappers (frame stacking, action processing, reward normalization, etc.) and applies game-specific filter keys.
+- **settings (Game Settings)**: Defines parameters such as game id, difficulty, characters, and action space.
+- **wrappers_settings**: Configures environment wrappers (frame stacking, scaling, action processing, etc.) and applies game-specific filter keys.
 - **ppo_settings**: Contains PPO hyperparameters including gamma, number of epochs, batch size (dynamically calculated), learning rate scheduling, and policy architecture.
 - **Paths**: Directories for saving models (`./trained_models`), Tensorboard logs (`./tensorboard_logs`), and monitor logs (`./output/logs`).
 
@@ -103,16 +124,19 @@ python train.py
 
 ## **How It Works**
 
-1. **Configuration Loading**: The training script loads all necessary configurations from `config.py` and `filter_keys.py`.
-2. **Environment Creation**: Uses `make_sb3_env` to create the DIAMBRA Arena environment with customized settings.
-3. **Checkpoint Handling**: Checks for existing checkpoints in the model directory to resume training, or starts a new session if none are found.
-4. **PPO Training**: Initializes the PPO agent and begins training using dynamic learning rate and clip range schedules.
-5. **Logging & Autosave**: Periodically saves training progress and logs metrics for visualization in Tensorboard.
-6. **Cleanup**: Saves the final model and gracefully closes the environment once training completes or is interrupted.
+1. **Configuration Loading**: The scripts load all necessary configurations from `config.py` and `filter_keys.py`.
+2. **Environment Creation**: Uses `make_sb3_env` (for training) or `diambra.arena.make` (for evaluation) to create the DIAMBRA Arena environment with custom settings.
+3. **Checkpoint Handling** (Training): Checks for existing checkpoints to resume training or starts a new session.
+4. **PPO Training and Evaluation**: Initializes the PPO agent for training or evaluation.
+5. **Rendering (Evaluation Only)**: During evaluation, frames are rendered and displayed in an OpenCV window.
+6. **Logging & Autosave**: Periodically saves training progress and logs metrics for Tensorboard visualization.
+7. **Cleanup**: Saves the final model and gracefully closes the environment once training completes or evaluation is stopped.
 
 ---
 
 ## **Example Output**
+
+### **Training:**
 
 ```bash
 Activated 32 environment(s)
@@ -124,6 +148,10 @@ Model saved at ./trained_models
 Environment Closed.
 ```
 
+### **Evaluation:**
+
+An OpenCV window will display the game frames. The terminal will continuously log the evaluation process. Ensure you exit the evaluation session gracefully using `CTRL+C` or by closing the window.
+
 ---
 
 ## **Troubleshooting**
@@ -131,3 +159,4 @@ Environment Closed.
 - **Batch Size Issues**: Ensure that the total batch size is evenly divisible by the number of minibatches. Adjust `nminibatches` or `n_steps` in `config.py` if necessary.
 - **Checkpoint Problems**: Verify that the `./trained_models` directory exists and is writable.
 - **Dependency Errors**: Double-check that all required packages are installed and correctly imported.
+- **Evaluation Issues**: If the OpenCV window fails to open, ensure `opencv-python` is installed and no other processes are blocking window creation.
