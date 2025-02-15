@@ -1,7 +1,3 @@
-Got it! Here’s your **README.md** that accurately reflects the current **folder structure** and usage instructions.
-
----
-
 # **mscrnt_utils**
 A collection of **utility scripts** for various projects, designed to be **modular, reusable, and easy to integrate** into different workflows.
 
