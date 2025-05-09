@@ -18,33 +18,49 @@ Follow these steps to submit your agent using the DIAMBRA CLI:
 Replace the sample logic in `agent.py` with your own pre-trained agent logic. Below is an example structure:
 
 ```python
-import diambra.arena
-from stable_baselines3 import PPO  # Import your RL framework
+from diambra.arena import SpaceTypes
+from diambra.arena.stable_baselines3.make_sb3_env import EnvironmentSettings, WrappersSettings
+from stable_baselines3 import PPO
+import diambra
 
-# Model path and game ID
-MODEL_PATH = "./model.zip"
-GAME_ID = "doapp"
+if __name__ == "__main__":
 
-# Load the trained agent
-agent = PPO.load(MODEL_PATH)
 
-# Environment settings setup and environment creation
-env = diambra.arena.make(GAME_ID)
+    # Settings
+    settings = EnvironmentSettings()
+    settings.difficulty = 8
+    settings.characters = "Ken"
+    settings.action_space = SpaceTypes.MULTI_DISCRETE
+    ...
 
-# Agent-Environment loop
-obs, info = env.reset()
-while True:
-    # Predict the next action using the trained agent
-    action, _ = agent.predict(obs, deterministic=True)
-    obs, reward, terminated, truncated, info = env.step(action.tolist())
+    # Wrappers Settings
+    wrappers_settings = WrappersSettings()
+    wrappers_settings.frame_shape = (84, 84, 1)
+    wrappers_settings.stack_frames = 4
+    ...
 
-    if terminated or truncated:
-        obs, info = env.reset()
-        if info["env_done"]:
-            break
 
-# Close the environment
-env.close()
+
+    # Create environment
+    env = diambra.arena.make(settings.game_id, settings, wrappers_settings)
+
+    model_path = "./model.zip"
+
+    # Load agent
+    agent = PPO.load(model_path, env)
+
+    # Begin evaluation
+    observation, info = env.reset()
+    while True:
+        action, _ = agent.predict(observation, deterministic=True)
+        observation, reward, terminated, truncated, info = env.step(action.tolist())
+
+        if terminated or truncated:
+            observation, info = env.reset()
+            if info["env_done"] is True:
+                break
+
+    env.close()
 ```
 
 Modify the settings (such as `GAME_ID` and `MODEL_PATH`) and the logic as required for your agent.
